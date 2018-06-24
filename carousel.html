@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+    <title>无限轮播</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        body{
+            width: 100%;
+            height: 100%;
+        }
+        ul li{
+            list-style-type: none;
+            float:left;
+        }
+        a{
+            text-decoration: none;
+        }
+        .clearfix:after{
+            content: '';
+            clear: both;
+            display: block;
+        }
+        .carousel{
+            width: 400px;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            margin-left: auto;
+            margin-right: auto;
+            padding-top: 100px;
+        }
+        .img-ct{
+            position: absolute;
+            height: 200px;
+        }
+        .fa{
+            position: absolute;
+            top: 200px;  
+            color:#fff;
+            font-size: 25px;
+            opacity: .5;  
+        }
+        .fa:hover{
+            opacity: 1;
+        }
+        .fa-arrow-circle-o-left{
+            left: 20px;
+        }
+        .fa-arrow-circle-o-right{
+            right: 20px;
+        }
+        .btn-ct{
+            position: absolute;
+            bottom: 20px;
+            left: 84px;
+        }
+         .btn-ct li{
+            margin-left: 10px;
+            width: 40px;
+            height: 5px;
+            border: 1px solid #fff;
+            opacity: .5;
+            border-radius: 2px;
+        }
+        .btn-ct .active{
+            background:#fff;
+            opacity: 1;
+        }
+        
+        
+    </style>
+</head>
+<body>
+    <div class="carousel">
+        <ul class="img-ct clearfix">
+            <li><a href="#"><img src="https://picsum.photos/400/200image=6" alt=""></a></li>
+            <li><a href="#"><img src="https://picsum.photos/400/200?image=7" alt=""></a></li>
+            <li><a href="#"><img src="https://picsum.photos/400/200?image=8" alt=""></a></li>
+            <li><a href="#"><img src="https://picsum.photos/400/200?image=9" alt=""></a></li>
+        </ul>
+        <span class="fa fa-arrow-circle-o-left" aria-hidden="true"></span>
+        <span class="fa fa-arrow-circle-o-right" aria-hidden="true"></span>
+        <ul class="btn-ct clearfix">
+            <li class="active"></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+    <div class="carousel">
+            <ul class="img-ct clearfix">
+                <li><a href="#"><img src="https://picsum.photos/400/200image=6" alt=""></a></li>
+                <li><a href="#"><img src="https://picsum.photos/400/200?image=7" alt=""></a></li>
+                <li><a href="#"><img src="https://picsum.photos/400/200?image=8" alt=""></a></li>
+                <li><a href="#"><img src="https://picsum.photos/400/200?image=9" alt=""></a></li>
+            </ul>
+            <span class="fa fa-arrow-circle-o-left" aria-hidden="true"></span>
+            <span class="fa fa-arrow-circle-o-right" aria-hidden="true"></span>
+            <ul class="btn-ct clearfix">
+                <li class="active"></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+        </div>
+    <script>
+        function Carousel($ct){
+            this.init($ct);
+            this.bind();
+            this.autoPlay();
+        }
+        Carousel.prototype = {
+            init:function($ct){
+                this.$ct = $ct;
+                this.index = 0;
+                this.animate = false;
+                this.$imgCt = this.$ct.find('.img-ct');
+                this.$imgs = this.$ct.find('.img-ct > li');
+                this.$preBtn = this.$ct.find('.fa-arrow-circle-o-left');
+                this.$nextBtn = this.$ct.find('.fa-arrow-circle-o-right');
+                this.$pageBtn = this.$ct.find('.btn-ct > li');
+
+                this.$imgCt.append(this.$imgs.first().clone());
+                this.$imgCt.prepend(this.$imgs.last().clone());
+
+                this.imgCount = this.$imgs.length;
+                this.imgWidth = this.$ct.width();
+                this.$imgCt.width((this.imgCount + 2) * this.imgWidth) 
+                this.$imgCt.css('left',-this.imgWidth);
+            },
+            bind:function(){
+                var _this = this;
+                this.$preBtn.on('click',function(){
+                    _this.playPre(1)
+                })
+                this.$nextBtn.on('click',function(){
+                    _this.playNext(1);
+                })
+                this.$pageBtn.on('click',function(){
+                    var index = $(this).index();
+                    if(_this.index > index){
+                        _this.playPre(_this.index - index)
+                    }else{
+                        _this.playNext(index - _this.index)
+                    }
+                    
+                });
+                this.$ct.hover(function(){
+                    console.log('hello')
+                    _this.stopAuto();
+                },function(){
+                    _this.autoPlay();
+                })
+            },
+            playNext:function(count){
+                if(this.animate) return;
+                this.animate = true;
+                var _this = this;
+                this.$imgCt.animate({
+                    left:'-='+this.imgWidth * count
+                },function(){
+                    _this.index += count;
+                    if(_this.index === _this.imgCount){
+                        _this.$imgCt.css('left',-_this.imgWidth);
+                        _this.index = 0;
+                    }
+                    _this.setPageBtn();
+                    _this.animate = false;
+                })
+            },
+            playPre:function(count){
+                if(this.animate) return;
+                this.animate = true;
+                var _this = this;
+                this.$imgCt.animate({
+                    left:'+='+this.imgWidth * count
+                },function(){
+                    _this.index -= count;
+                    if(_this.index === -1){
+                        _this.$imgCt.css('left',-_this.imgWidth * _this.imgCount);
+                        _this.index = _this.imgCount-1;
+                    }
+                    _this.setPageBtn();
+                    _this.animate = false;
+                })
+            },
+            setPageBtn:function(){
+                this.$pageBtn.eq(this.index).addClass('active').siblings().removeClass('active')
+            },
+            autoPlay:function(){
+                var _this = this;
+                this.autoClock = setInterval(function(){
+                    _this.playNext(1)
+                },2000)
+            },
+            stopAuto:function(){
+                clearInterval(this.autoClock);
+            }
+
+        }
+        new Carousel($('.carousel').eq(0));
+        new Carousel($('.carousel').eq(1));
+    </script>
+</body>
+</html>
